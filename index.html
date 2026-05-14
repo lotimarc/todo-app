@@ -26,7 +26,6 @@
       .tabs {
         display: flex;
         gap: 6px;
-        flex-wrap: wrap;
         justify-content: center;
         margin-bottom: 16px;
         overflow-x: auto;
@@ -34,12 +33,12 @@
       }
 
       .tab {
-        padding: 8px 14px;
+        padding: 8px 12px;
         border-radius: 20px;
         border: 2px solid #2c3e7a;
         background: white;
         color: #2c3e7a;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: bold;
         cursor: pointer;
         white-space: nowrap;
@@ -145,7 +144,6 @@
       }
 
       .task-info { display: flex; flex-direction: column; }
-
       .task-text { font-size: 15px; color: #222; }
 
       .due-date {
@@ -155,7 +153,6 @@
       }
 
       .due-date.overdue { color: #cc3333; font-weight: bold; }
-
       .task-emoji { font-size: 20px; }
 
       .delete-btn {
@@ -172,6 +169,13 @@
         color: #aaa;
         font-size: 14px;
         padding: 24px 0;
+      }
+
+      .syncing {
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+        margin-top: 8px;
       }
     </style>
   </head>
@@ -204,53 +208,28 @@
       </div>
       <ul id="taskList"></ul>
       <div class="empty" id="emptyMsg" style="display:none">No tasks yet — add one above!</div>
+      <div class="syncing" id="syncMsg"></div>
     </div>
 
-    <script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDGW3cYbZxFkrEcSoS4DGGFfYn98ZHWkY8",
+        authDomain: "family-todo-1e7c8.firebaseapp.com",
+        projectId: "family-todo-1e7c8",
+        storageBucket: "family-todo-1e7c8.firebasestorage.app",
+        messagingSenderId: "111686009018",
+        appId: "1:111686009018:web:096d2d837641ee8ed68283"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
       let currentMember = "Loti";
-      // Ask for notification permission
-function requestNotificationPermission() {
-  if ("Notification" in window) {
-    Notification.requestPermission();
-  }
-}
-
-// Check for tasks due tomorrow and notify
-function checkDueTomorrow() {
-  if (Notification.permission !== "granted") return;
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split("T")[0];
-
-  const members = ["Loti", "Asline", "Hanah", "Elizabeth", "Melchi"];
-  members.forEach(member => {
-    const tasks = loadTasks(member);
-    tasks.forEach(task => {
-      if (task.date === tomorrowStr && !task.done) {
-        new Notification("📋 Task due tomorrow!", {
-          body: `${member}: ${task.emoji} ${task.text}`,
-          icon: "https://lotimarc.github.io/todo-app/background.jpg"
-        });
-      }
-    });
-  });
-}
-
-// Run check every hour
-requestNotificationPermission();
-checkDueTomorrow();
-setInterval(checkDueTomorrow, 60 * 60 * 1000);
       let selectedEmoji = "";
-
-      function switchTab(name, btn) {
-        currentMember = name;
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        btn.classList.add("active");
-        selectedEmoji = "";
-        document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
-        renderList();
-      }
+      let unsubscribe = null;
 
       function selectEmoji(btn) {
         document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
@@ -260,14 +239,6 @@ setInterval(checkDueTomorrow, 60 * 60 * 1000);
           btn.classList.add("selected");
           selectedEmoji = btn.textContent;
         }
-      }
-
-      function saveTasks(member, data) {
-        localStorage.setItem("tasks_" + member, JSON.stringify(data));
-      }
-
-      function loadTasks(member) {
-        return JSON.parse(localStorage.getItem("tasks_" + member) || "[]");
       }
 
       function formatDate(dateStr) {
@@ -281,34 +252,35 @@ setInterval(checkDueTomorrow, 60 * 60 * 1000);
         return new Date(dateStr) < new Date(new Date().toDateString());
       }
 
-      function renderList() {
+      function renderList(tasks) {
         const ul = document.getElementById("taskList");
         const empty = document.getElementById("emptyMsg");
         ul.innerHTML = "";
-        const tasks = loadTasks(currentMember);
-        if (tasks.length === 0) { empty.style.display = "block"; return; }
+
+        if (tasks.length === 0) {
+          empty.style.display = "block";
+          return;
+        }
+
         empty.style.display = "none";
-        tasks.forEach((t, i) => renderTask(t.emoji, t.text, t.done, t.date, i));
+        tasks.forEach(t => renderTask(t));
       }
 
-      function renderTask(emoji, text, done, date, index) {
+      function renderTask(t) {
         const ul = document.getElementById("taskList");
         const li = document.createElement("li");
-        if (done) li.classList.add("done");
+        if (t.done) li.classList.add("done");
 
         const left = document.createElement("div");
         left.className = "task-left";
-        left.onclick = function() {
-          const tasks = loadTasks(currentMember);
-          tasks[index].done = !tasks[index].done;
-          saveTasks(currentMember, tasks);
-          renderList();
+        left.onclick = async function() {
+          await updateDoc(doc(db, "tasks", t.id), { done: !t.done });
         };
 
-        if (emoji) {
+        if (t.emoji) {
           const emojiSpan = document.createElement("span");
           emojiSpan.className = "task-emoji";
-          emojiSpan.textContent = emoji;
+          emojiSpan.textContent = t.emoji;
           left.appendChild(emojiSpan);
         }
 
@@ -317,13 +289,13 @@ setInterval(checkDueTomorrow, 60 * 60 * 1000);
 
         const span = document.createElement("span");
         span.className = "task-text";
-        span.textContent = text;
+        span.textContent = t.text;
         info.appendChild(span);
 
-        if (date) {
+        if (t.date) {
           const dateSpan = document.createElement("span");
-          dateSpan.className = "due-date" + (isOverdue(date) && !done ? " overdue" : "");
-          dateSpan.textContent = formatDate(date);
+          dateSpan.className = "due-date" + (isOverdue(t.date) && !t.done ? " overdue" : "");
+          dateSpan.textContent = formatDate(t.date);
           info.appendChild(dateSpan);
         }
 
@@ -332,11 +304,8 @@ setInterval(checkDueTomorrow, 60 * 60 * 1000);
         const del = document.createElement("button");
         del.textContent = "✕";
         del.className = "delete-btn";
-        del.onclick = function() {
-          const tasks = loadTasks(currentMember);
-          tasks.splice(index, 1);
-          saveTasks(currentMember, tasks);
-          renderList();
+        del.onclick = async function() {
+          await deleteDoc(doc(db, "tasks", t.id));
         };
 
         li.appendChild(left);
@@ -344,29 +313,63 @@ setInterval(checkDueTomorrow, 60 * 60 * 1000);
         ul.appendChild(li);
       }
 
-      function addTask() {
+      function listenToTasks() {
+        if (unsubscribe) unsubscribe();
+        document.getElementById("syncMsg").textContent = "Syncing...";
+
+        const q = query(
+          collection(db, "tasks"),
+          orderBy("createdAt", "asc")
+        );
+
+        unsubscribe = onSnapshot(q, snapshot => {
+          const tasks = snapshot.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .filter(t => t.member === currentMember);
+          renderList(tasks);
+          document.getElementById("syncMsg").textContent = "✓ Synced";
+          setTimeout(() => document.getElementById("syncMsg").textContent = "", 2000);
+        });
+      }
+
+      window.switchTab = function(name, btn) {
+        currentMember = name;
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        selectedEmoji = "";
+        document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
+        listenToTasks();
+      };
+
+      window.selectEmoji = selectEmoji;
+
+      window.addTask = async function() {
         const input = document.getElementById("taskInput");
         const dateInput = document.getElementById("dueDateInput");
         const text = input.value.trim();
         if (text === "") return;
 
-        const tasks = loadTasks(currentMember);
-        tasks.push({ emoji: selectedEmoji, text, done: false, date: dateInput.value });
-        saveTasks(currentMember, tasks);
-        renderList();
+        await addDoc(collection(db, "tasks"), {
+          member: currentMember,
+          emoji: selectedEmoji,
+          text,
+          done: false,
+          date: dateInput.value,
+          createdAt: Date.now()
+        });
 
         input.value = "";
         dateInput.value = "";
         selectedEmoji = "";
         document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
         input.focus();
-      }
+      };
 
       document.getElementById("taskInput").addEventListener("keypress", function(e) {
-        if (e.key === "Enter") addTask();
+        if (e.key === "Enter") window.addTask();
       });
 
-      renderList();
+      listenToTasks();
     </script>
   </body>
-</html>
+</html>🚀
