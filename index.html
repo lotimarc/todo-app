@@ -207,6 +207,7 @@
     </div>
 
     <script>
+      let currentMember = "Loti";
       // Ask for notification permission
 function requestNotificationPermission() {
   if ("Notification" in window) {
@@ -240,7 +241,6 @@ function checkDueTomorrow() {
 requestNotificationPermission();
 checkDueTomorrow();
 setInterval(checkDueTomorrow, 60 * 60 * 1000);
-      let currentMember = "Loti";
       let selectedEmoji = "";
 
       function switchTab(name, btn) {
