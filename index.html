@@ -207,6 +207,39 @@
     </div>
 
     <script>
+      // Ask for notification permission
+function requestNotificationPermission() {
+  if ("Notification" in window) {
+    Notification.requestPermission();
+  }
+}
+
+// Check for tasks due tomorrow and notify
+function checkDueTomorrow() {
+  if (Notification.permission !== "granted") return;
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+  const members = ["Loti", "Asline", "Hanah", "Elizabeth", "Melchi"];
+  members.forEach(member => {
+    const tasks = loadTasks(member);
+    tasks.forEach(task => {
+      if (task.date === tomorrowStr && !task.done) {
+        new Notification("📋 Task due tomorrow!", {
+          body: `${member}: ${task.emoji} ${task.text}`,
+          icon: "https://lotimarc.github.io/todo-app/background.jpg"
+        });
+      }
+    });
+  });
+}
+
+// Run check every hour
+requestNotificationPermission();
+checkDueTomorrow();
+setInterval(checkDueTomorrow, 60 * 60 * 1000);
       let currentMember = "Loti";
       let selectedEmoji = "";
 
