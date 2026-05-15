@@ -271,7 +271,7 @@
     <!-- LOGIN SCREEN -->
     <div id="loginScreen">
       <div class="login-card">
-        <div style="font-size:48px;margin-bottom:8px">👨‍👩‍👧‍👦</div>
+       <img src="loti-profile.jpg" style="width:90px;height:90px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid #2c3e7a;">
         <h2>Family To-Do List</h2>
         <p>Sign in to see your tasks</p>
         <input type="email" id="emailInput" placeholder="Your email">
@@ -284,7 +284,10 @@
     <!-- MAIN APP -->
     <div id="appScreen" class="app-screen">
       <div class="top-bar">
-        <span class="welcome" id="welcomeMsg">👋 Welcome!</span>
+        <span class="welcome" id="welcomeMsg">
+  <img id="profilePic" src="loti-profile.jpg" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;display:none;">
+  👋 Welcome!
+</span>
         <button class="logout-btn" onclick="logoutUser()">Sign Out</button>
       </div>
       <div class="card">
@@ -376,7 +379,7 @@
         if (user) {
           currentUser = user;
           currentName = nameMap[user.email] || user.email;
-          document.getElementById("welcomeMsg").textContent = `👋 Hi, ${currentName}!`;
+          document.getElementById("welcomeMsg").innerHTML = `<img src="loti-profile.jpg" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;"> 👋 Hi, ${currentName}!`;
           document.getElementById("loginScreen").style.display = "none";
           document.getElementById("appScreen").style.display = "block";
 
