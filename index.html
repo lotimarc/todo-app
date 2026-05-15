@@ -351,19 +351,55 @@
 
   // Check tasks due tomorrow and show notification
   function checkDueTomorrow(tasks, name) {
-    if (Notification.permission !== "granted") return;
+    // Remove existing banner
+    const existing = document.getElementById("dueBanner");
+    if (existing) existing.remove();
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-    tasks.forEach(task => {
-      if (task.date === tomorrowStr && !task.done) {
+    const dueTasks = tasks.filter(t => t.date === tomorrowStr && !t.done);
+    if (dueTasks.length === 0) return;
+
+    // Show in-app banner
+    const banner = document.createElement("div");
+    banner.id = "dueBanner";
+    banner.style.cssText = `
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: bold;
+    `;
+
+    const title = document.createElement("div");
+    title.style.marginBottom = "8px";
+    title.textContent = `⏰ Due tomorrow (${dueTasks.length} task${dueTasks.length > 1 ? 's' : ''})`;
+    banner.appendChild(title);
+
+    dueTasks.forEach(task => {
+      const item = document.createElement("div");
+      item.style.cssText = "font-weight: normal; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.3);";
+      item.textContent = `${task.emoji} ${task.text}`;
+      banner.appendChild(item);
+    });
+
+    // Insert banner above task list
+    const ul = document.getElementById("taskList");
+    ul.parentNode.insertBefore(banner, ul);
+
+    // Also send notification if permission granted
+    if (Notification.permission === "granted") {
+      dueTasks.forEach(task => {
         new Notification("📋 Task due tomorrow!", {
           body: `${name}: ${task.emoji} ${task.text}`,
           icon: '/todo-app/background.jpg'
         });
-      }
-    });
+      });
+    }
   }
 
   // AUTH STATE
