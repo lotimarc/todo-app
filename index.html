@@ -453,7 +453,7 @@
           dueTomorrow.forEach(task => {
             const item = document.createElement("div");
             item.className = "due-banner-item";
-            item.textContent = `${task.emoji} ${task.text} — ${task.assignedTo}`;
+            item.textContent = `${task.emoji} ${task.text}${task.assignedTo ? ' — ' + task.assignedTo : ''}`;
             banner.appendChild(item);
           });
           bannerDiv.appendChild(banner);
