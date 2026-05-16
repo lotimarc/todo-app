@@ -264,6 +264,25 @@
         border-top: 1.5px solid #e0e0e0;
         margin: 16px 0;
       }
+      .task-note {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  padding: 0 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.expand-btn:hover { color: #666; background: none; }
     </style>
   </head>
   <body>
@@ -298,17 +317,18 @@
           <input type="text" id="taskInput" placeholder="Add a new task...">
           <button onclick="addTask()">Add</button>
         </div>
-        <div class="bottom-row">
-          <input type="date" id="dueDateInput">
-          <select id="assignSelect">
-            <option value="">Assign to...</option>
-            <option value="Loti">Loti</option>
-            <option value="Asline">Asline</option>
-            <option value="Hanah">Hanah</option>
-            <option value="Elizabeth">Elizabeth</option>
-            <option value="Melchi">Melchi</option>
-          </select>
-        </div>
+        <<div class="bottom-row">
+  <input type="date" id="dueDateInput">
+  <select id="assignSelect">
+    <option value="">Assign to...</option>
+    <option value="Loti">Loti</option>
+    <option value="Asline">Asline</option>
+    <option value="Hanah">Hanah</option>
+    <option value="Elizabeth">Elizabeth</option>
+    <option value="Melchi">Melchi</option>
+  </select>
+</div>
+<textarea id="taskNotes" placeholder="Add a note (optional)..." style="width:100%;padding:8px 12px;border:1.5px solid #ccc;border-radius:8px;font-size:14px;font-family:Arial,sans-serif;resize:none;height:60px;margin-bottom:10px;color:#444;"></textarea>
         <div class="emoji-row">
           <button class="emoji-btn" onclick="selectEmoji(this)">📞</button>
           <button class="emoji-btn" onclick="selectEmoji(this)">🏥</button>
@@ -524,11 +544,33 @@
 
               // Show who assigned it if not the owner
               if (t.assignedBy && t.assignedBy !== t.assignedTo) {
-                const assignedBy = document.createElement("span");
-                assignedBy.style.cssText = "font-size:11px;color:#aaa;margin-top:2px;";
-                assignedBy.textContent = `Assigned by ${t.assignedBy}`;
-                info.appendChild(assignedBy);
-              }
+  const assignedBy = document.createElement("span");
+  assignedBy.style.cssText = "font-size:11px;color:#aaa;margin-top:2px;";
+  assignedBy.textContent = `Assigned by ${t.assignedBy}`;
+  info.appendChild(assignedBy);
+}
+
+if (t.notes) {
+  const noteEl = document.createElement("div");
+  noteEl.className = "task-note";
+  noteEl.style.display = "none";
+  noteEl.textContent = `📝 ${t.notes}`;
+  noteEl.id = `note-${t.id}`;
+  info.appendChild(noteEl);
+
+  const expandBtn = document.createElement("button");
+  expandBtn.className = "expand-btn";
+  expandBtn.textContent = "▾";
+  expandBtn.title = "Show note";
+  expandBtn.onclick = function(e) {
+    e.stopPropagation();
+    const note = document.getElementById(`note-${t.id}`);
+    const isHidden = note.style.display === "none";
+    note.style.display = isHidden ? "block" : "none";
+    expandBtn.textContent = isHidden ? "▴" : "▾";
+  };
+  info.appendChild(expandBtn);
+}
 
               left.appendChild(info);
 
@@ -582,20 +624,23 @@
 
         const assignedTo = assignSelect.value || currentName;
 
-        await addDoc(collection(db, "tasks"), {
-          uid: currentUser.uid,
-          assignedTo,
-          assignedBy: currentName,
-          emoji: selectedEmoji,
-          text,
-          done: false,
-          date: dateInput.value,
-          createdAt: Date.now()
-        });
+        const notes = document.getElementById("taskNotes").value.trim();
+await addDoc(collection(db, "tasks"), {
+  uid: currentUser.uid,
+  assignedTo,
+  assignedBy: currentName,
+  emoji: selectedEmoji,
+  text,
+  notes,
+  done: false,
+  date: dateInput.value,
+  createdAt: Date.now()
+});
 
         input.value = "";
         dateInput.value = "";
         assignSelect.value = currentName;
+        document.GetElementById("taskNotes").value = "";
         selectedEmoji = "";
         document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
         input.focus();
