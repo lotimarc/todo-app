@@ -283,6 +283,16 @@
 }
 
 .expand-btn:hover { color: #666; background: none; }
+
+.recur-badge {
+  font-size: 11px;
+  color: #4a6cf7;
+  background: #e8f0fe;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-top: 3px;
+  display: inline-block;
+}
     </style>
   </head>
   <body>
@@ -329,6 +339,12 @@
   </select>
 </div>
 <textarea id="taskNotes" placeholder="Add a note (optional)..." style="width:100%;padding:8px 12px;border:1.5px solid #ccc;border-radius:8px;font-size:14px;font-family:Arial,sans-serif;resize:none;height:60px;margin-bottom:10px;color:#444;"></textarea>
+<select id="recurSelect" style="width:100%;padding:8px 12px;border:1.5px solid #ccc;border-radius:8px;font-size:14px;color:#444;background:white;margin-bottom:10px;">
+  <option value="">No repeat</option>
+  <option value="daily">🔁 Repeat daily</option>
+  <option value="weekly">🔁 Repeat weekly</option>
+  <option value="monthly">🔁 Repeat monthly</option>
+</select>
         <div class="emoji-row">
           <button class="emoji-btn" onclick="selectEmoji(this)">📞</button>
           <button class="emoji-btn" onclick="selectEmoji(this)">🏥</button>
@@ -516,9 +532,22 @@
               left.className = "task-left" + (isOwner ? " editable" : "");
               if (isOwner) {
                 left.onclick = async function() {
-                  await updateDoc(doc(db, "tasks", t.id), { done: !t.done });
-                };
-              }
+  if (!t.done && t.recur) {
+    // Calculate next due date
+    const nextDate = new Date(t.date || new Date());
+    if (t.recur === "daily") nextDate.setDate(nextDate.getDate() + 1);
+    if (t.recur === "weekly") nextDate.setDate(nextDate.getDate() + 7);
+    if (t.recur === "monthly") nextDate.setMonth(nextDate.getMonth() + 1);
+    const nextStr = nextDate.toISOString().split("T")[0];
+    await updateDoc(doc(db, "tasks", t.id), {
+      done: false,
+      date: nextStr,
+      createdAt: Date.now()
+    });
+  } else {
+    await updateDoc(doc(db, "tasks", t.id), { done: !t.done });
+  }
+};
 
               if (t.emoji) {
                 const emojiSpan = document.createElement("span");
@@ -548,6 +577,13 @@
   assignedBy.style.cssText = "font-size:11px;color:#aaa;margin-top:2px;";
   assignedBy.textContent = `Assigned by ${t.assignedBy}`;
   info.appendChild(assignedBy);
+}
+
+if (t.recur) {
+  const recurBadge = document.createElement("span");
+  recurBadge.className = "recur-badge";
+  recurBadge.textContent = `🔁 Repeats ${t.recur}`;
+  info.appendChild(recurBadge);
 }
 
 if (t.notes) {
@@ -625,6 +661,7 @@ if (t.notes) {
         const assignedTo = assignSelect.value || currentName;
 
         const notes = document.getElementById("taskNotes").value.trim();
+const recur = document.getElementById("recurSelect").value;
 await addDoc(collection(db, "tasks"), {
   uid: currentUser.uid,
   assignedTo,
@@ -632,6 +669,7 @@ await addDoc(collection(db, "tasks"), {
   emoji: selectedEmoji,
   text,
   notes,
+  recur,
   done: false,
   date: dateInput.value,
   createdAt: Date.now()
@@ -640,7 +678,7 @@ await addDoc(collection(db, "tasks"), {
         input.value = "";
         dateInput.value = "";
         assignSelect.value = currentName;
-        document.GetElementById("taskNotes").value = "";
+       document.getElementById("recurSelect").value = "";
         selectedEmoji = "";
         document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
         input.focus();
