@@ -533,7 +533,6 @@
               if (isOwner) {
                 left.onclick = async function() {
   if (!t.done && t.recur) {
-    // Calculate next due date
     const nextDate = new Date(t.date || new Date());
     if (t.recur === "daily") nextDate.setDate(nextDate.getDate() + 1);
     if (t.recur === "weekly") nextDate.setDate(nextDate.getDate() + 7);
@@ -548,6 +547,7 @@
     await updateDoc(doc(db, "tasks", t.id), { done: !t.done });
   }
 };
+              }
 
               if (t.emoji) {
                 const emojiSpan = document.createElement("span");
