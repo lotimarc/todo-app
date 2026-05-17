@@ -346,6 +346,49 @@
   flex-shrink: 0;
   width: 70px;
 }
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #f8f9ff;
+}
+
+.leaderboard-rank {
+  font-size: 22px;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leaderboard-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.leaderboard-points {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2c3e7a;
+  background: #e8f0fe;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.leaderboard-tasks {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.leaderboard-row.first {
+  background: linear-gradient(135deg, #fff8e0, #ffeaa0);
+  border: 1.5px solid #f0c040;
+}
     </style>
   </head>
   <body>
@@ -377,8 +420,11 @@
        <div id="dashboard" style="display:none">
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">📊 Family Progress</h2>
   <div id="chartContainer"></div>
+  <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
+  <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">🏆 Leaderboard</h2>
+  <div id="leaderboard"></div>
   <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:20px 0;">
-</div> 
+</div>
         <h1>👨‍👩‍👧‍👦 Family Tasks</h1>
 
         <!-- ADD TASK -->
@@ -488,6 +534,7 @@
 };
 
 function renderDashboard() {
+  // --- CHART ---
   const container = document.getElementById("chartContainer");
   container.innerHTML = "";
 
@@ -514,7 +561,6 @@ function renderDashboard() {
     const bars = document.createElement("div");
     bars.className = "chart-bars";
 
-    // Completed bar
     const doneWrap = document.createElement("div");
     doneWrap.className = "chart-bar-wrap";
     const doneFill = document.createElement("div");
@@ -524,7 +570,6 @@ function renderDashboard() {
     doneWrap.appendChild(doneFill);
     bars.appendChild(doneWrap);
 
-    // Open bar
     const openWrap = document.createElement("div");
     openWrap.className = "chart-bar-wrap";
     const openFill = document.createElement("div");
@@ -543,11 +588,59 @@ function renderDashboard() {
     row.appendChild(stats);
     container.appendChild(row);
 
-    // Animate bars after render
     setTimeout(() => {
       doneFill.style.width = total > 0 ? Math.round(done / maxTotal * 100) + "%" : "0%";
       openFill.style.width = total > 0 ? Math.round(open / maxTotal * 100) + "%" : "0%";
     }, 50);
+  });
+
+  // --- LEADERBOARD ---
+  const leaderboard = document.getElementById("leaderboard");
+  leaderboard.innerHTML = "";
+
+  const medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
+
+  const scores = members.map(member => {
+    const memberTasks = allTasks.filter(t => t.assignedTo === member);
+    const doneTasks = memberTasks.filter(t => t.done);
+    const points = doneTasks.reduce((sum, t) => sum + (t.recur ? 15 : 10), 0);
+    return { member, points, done: doneTasks.length };
+  });
+
+  scores.sort((a, b) => b.points - a.points);
+
+  scores.forEach((s, i) => {
+    const colors = memberColors[s.member];
+    const row = document.createElement("div");
+    row.className = "leaderboard-row" + (i === 0 && s.points > 0 ? " first" : "");
+
+    const rank = document.createElement("div");
+    rank.className = "leaderboard-rank";
+    rank.textContent = medals[i];
+
+    const info = document.createElement("div");
+    info.style.flex = "1";
+
+    const name = document.createElement("div");
+    name.className = "leaderboard-name";
+    name.style.color = colors.dot;
+    name.textContent = s.member;
+
+    const tasks = document.createElement("div");
+    tasks.className = "leaderboard-tasks";
+    tasks.textContent = `${s.done} task${s.done !== 1 ? 's' : ''} completed`;
+
+    info.appendChild(name);
+    info.appendChild(tasks);
+
+    const pts = document.createElement("div");
+    pts.className = "leaderboard-points";
+    pts.textContent = `${s.points} pts`;
+
+    row.appendChild(rank);
+    row.appendChild(info);
+    row.appendChild(pts);
+    leaderboard.appendChild(row);
   });
 }
           listenToTasks();
@@ -559,6 +652,7 @@ function renderDashboard() {
           if (unsubscribe) unsubscribe();
         }
       });
+    
 
       // LOGIN
       window.loginUser = async function() {
