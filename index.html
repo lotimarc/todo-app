@@ -396,7 +396,8 @@
     <!-- LOGIN SCREEN -->
     <div id="loginScreen">
       <div class="login-card">
-       <img src="loti-profile.jpg" style="width:90px;height:90px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid #2c3e7a;">
+       const photo = photoMap[currentName] || "loti-profile.jpg";
+document.getElementById("welcomeMsg").innerHTML = `<img src="${photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;"> 👋 Hi, ${currentName}!`;
         <h2>Family To-Do List</h2>
         <p>Sign in to see your tasks</p>
         <input type="email" id="emailInput" placeholder="Your email">
@@ -509,6 +510,14 @@
         "melchi@family.com": "Melchi"
       };
 
+      const photoMap = {
+  "Loti": "loti-profile.jpg",
+  "Asline": "asline-profile.jpg",
+  "Hanah": "hanah-profile.jpg",
+  "Elizabeth": "elizabeth-profile.jpg",
+  "Melchi": "melchi-profile.jpg"
+};
+
       let selectedEmoji = "";
       let unsubscribe = null;
       let currentUser = null;
@@ -520,7 +529,8 @@
         if (user) {
           currentUser = user;
           currentName = nameMap[user.email] || user.email;
-          document.getElementById("welcomeMsg").innerHTML = `<img src="loti-profile.jpg" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;"> 👋 Hi, ${currentName}!`;
+          const photo = photoMap[currentName] || "loti-profile.jpg";
+document.getElementById("welcomeMsg").innerHTML = `<img src="${photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;"> 👋 Hi, ${currentName}!`;
           document.getElementById("loginScreen").style.display = "none";
           document.getElementById("appScreen").style.display = "block";
 
@@ -618,6 +628,10 @@ function renderDashboard() {
     rank.className = "leaderboard-rank";
     rank.textContent = medals[i];
 
+    const avatar = document.createElement("img");
+avatar.src = photoMap[s.member];
+avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;";
+
     const info = document.createElement("div");
     info.style.flex = "1";
 
@@ -638,6 +652,7 @@ function renderDashboard() {
     pts.textContent = `${s.points} pts`;
 
     row.appendChild(rank);
+    row.appendChild(avatar);
     row.appendChild(info);
     row.appendChild(pts);
     leaderboard.appendChild(row);
@@ -734,7 +749,7 @@ function renderDashboard() {
           const header = document.createElement("div");
           header.className = "member-header";
           header.style.background = colors.bg;
-          header.innerHTML = `<div class="member-dot" style="background:${colors.dot}"></div><span style="color:${colors.dot}">${member}</span><span style="color:#aaa;font-weight:normal;font-size:12px">${memberTasks.filter(t=>!t.done).length} open</span>`;
+          header.innerHTML = `<img src="${photoMap[member]}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid ${colors.dot}"><span style="color:${colors.dot}">${member}</span><span style="color:#aaa;font-weight:normal;font-size:12px">${memberTasks.filter(t=>!t.done).length} open</span>`;
           section.appendChild(header);
 
           const ul = document.createElement("ul");
