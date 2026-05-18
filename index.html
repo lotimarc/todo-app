@@ -97,6 +97,18 @@ body:not(.dark) {
         border-radius: 20px;
       }
 
+      .badge {
+  display: inline-block;
+  background: #1e9e56;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
       .logout-btn {
         padding: 6px 14px;
         background: rgba(255,255,255,0.85);
@@ -966,6 +978,28 @@ if (t.notes) {
           container.appendChild(section);
         });
 
+        // Weekly task counter badge
+const startOfWeek = new Date();
+startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+startOfWeek.setHours(0, 0, 0, 0);
+
+const myUid = currentUser.uid;
+const completedThisWeek = tasks.filter(t =>
+  t.uid === myUid &&
+  t.done &&
+  t.createdAt >= startOfWeek.getTime()
+).length;
+
+const existingBadge = document.getElementById("weekBadge");
+if (existingBadge) existingBadge.remove();
+
+if (completedThisWeek > 0) {
+  const badge = document.createElement("span");
+  badge.id = "weekBadge";
+  badge.className = "badge";
+  badge.textContent = `✅ ${completedThisWeek} this week`;
+  document.getElementById("welcomeMsg").appendChild(badge);
+}
         document.getElementById("syncMsg").textContent = "✓ Synced";
         setTimeout(() => document.getElementById("syncMsg").textContent = "", 2000);
       }
