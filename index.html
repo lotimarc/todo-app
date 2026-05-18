@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
       * { box-sizing: border-box; }
+      body.dark {
+  --bg: #1a1a2e;
+  --card: rgba(30, 30, 50, 0.92);
+  --text: #e0e0e0;
+  --subtext: #aaa;
+  --border: #444;
+  --input-bg: #2a2a40;
+  --row-bg: #22223a;
+  --empty: #666;
+}
+
+body:not(.dark) {
+  --bg: transparent;
+  --card: rgba(255, 255, 255, 0.85);
+  --text: #222;
+  --subtext: #888;
+  --border: #eee;
+  --input-bg: white;
+  --row-bg: #f8f9ff;
+  --empty: #bbb;
+}
 
       body {
         background-image: url('background.jpg');
@@ -90,12 +111,36 @@
       .card {
         max-width: 600px;
         margin: 0 auto;
-        background-color: rgba(255, 255, 255, 0.85);
+        background-color: var(--card);
         backdrop-filter: blur(10px);
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
       }
+
+      input[type="text"],
+      input[type="date"],
+      input[type="email"],
+      input[type="password"],
+      select,
+      textarea {
+        background: var(--input-bg);
+        color: var(--text);
+      }
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        gap: 10px;
+      }
+
+      .task-text {font-size: 14px; color: var(--text);}
+      .due-date { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+      .empty-member { font-size: 13px; color: var(--empty); padding: 6px 0; font-style:italic; }
+      .leaderboard-row { background: var(--row-bar);}
+      .chart-bar-wrap { background: #f0f0f0; border-radius: 6px; height: 10px; width: 100%; overflow: hidden;}
 
       .card h1 { margin-top: 0; margin-bottom: 16px; text-align: center; color: #2c3e7a; font-size: 22px; }
 
@@ -303,6 +348,15 @@
   cursor: pointer;
 }
 
+.dark-btn {
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
 .chart-row {
   display: flex;
   align-items: center;
@@ -396,8 +450,6 @@
     <!-- LOGIN SCREEN -->
     <div id="loginScreen">
       <div class="login-card">
-       const photo = photoMap[currentName] || "loti-profile.jpg";
-document.getElementById("welcomeMsg").innerHTML = `<img src="${photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;"> 👋 Hi, ${currentName}!`;
         <h2>Family To-Do List</h2>
         <p>Sign in to see your tasks</p>
         <input type="email" id="emailInput" placeholder="Your email">
@@ -414,7 +466,8 @@ document.getElementById("welcomeMsg").innerHTML = `<img src="${photo}" style="wi
   <img id="profilePic" src="loti-profile.jpg" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;display:none;">
   👋 Welcome!
 </span>
-      <button class="dashboard-btn" onclick="toggleDashboard()">📊</button> 
+      <button class="dashboard-btn" onclick="toggleDashboard()">📊</button>
+      <button class="dark-btn" onclick="toggleDark()" id="darkBtn">🌙</button> 
       <button class="logout-btn" onclick="logoutUser()">Sign Out</button>
       </div>
       <div class="card">
@@ -523,6 +576,19 @@ document.getElementById("welcomeMsg").innerHTML = `<img src="${photo}" style="wi
       let currentUser = null;
       let currentName = "";
       let allTasks = [];
+
+      // Dark mode
+const savedDark = localStorage.getItem("darkMode") === "true";
+if (savedDark) {
+  document.body.classList.add("dark");
+  document.getElementById("darkBtn") && (document.getElementById("darkBtn").textContent = "☀️");
+}
+
+window.toggleDark = function() {
+  const isDark = document.body.classList.toggle("dark");
+  document.getElementById("darkBtn").textContent = isDark ? "☀️" : "🌙";
+  localStorage.setItem("darkMode", isDark);
+};
 
       // AUTH
       onAuthStateChanged(auth, user => {
