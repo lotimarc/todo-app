@@ -455,6 +455,37 @@ body:not(.dark) {
   background: linear-gradient(135deg, #fff8e0, #ffeaa0);
   border: 1.5px solid #f0c040;
 }
+
+.priority-select {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.priority-btn {
+  flex: 1;
+  padding: 6px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f0f4ff;
+  color: #444;
+}
+
+.priority-btn.selected { border-color: #2c3e7a; }
+.priority-btn.high { background: #ffe8e8; color: #cc3333; }
+.priority-btn.medium { background: #fff8e0; color: #cc8800; }
+.priority-btn.low { background: #e8f8ee; color: #1e9e56; }
+
+.priority-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
     </style>
   </head>
   <body>
@@ -516,6 +547,11 @@ body:not(.dark) {
   <option value="weekly">🔁 Repeat weekly</option>
   <option value="monthly">🔁 Repeat monthly</option>
 </select>
+<div class="priority-select">
+  <button class="priority-btn high" onclick="selectPriority('high', this)">🔴 High</button>
+  <button class="priority-btn medium" onclick="selectPriority('medium', this)">🟡 Medium</button>
+  <button class="priority-btn low selected" onclick="selectPriority('low', this)">🟢 Low</button>
+</div>
         <div class="emoji-row">
           <button class="emoji-btn" onclick="selectEmoji(this)">📞</button>
           <button class="emoji-btn" onclick="selectEmoji(this)">🏥</button>
@@ -584,6 +620,13 @@ body:not(.dark) {
 };
 
       let selectedEmoji = "";
+      let selectedPriority = "low";
+
+window.selectPriority = function(priority, btn) {
+  selectedPriority = priority;
+  document.querySelectorAll(".priority-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+};
       let unsubscribe = null;
       let currentUser = null;
       let currentName = "";
@@ -872,6 +915,13 @@ avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cove
 
               const left = document.createElement("div");
               left.className = "task-left" + (isOwner ? " editable" : "");
+              // Priority dot
+const priorityColors = { high: "#cc3333", medium: "#cc8800", low: "#1e9e56" };
+const dot = document.createElement("div");
+dot.className = "priority-dot";
+dot.style.background = priorityColors[t.priority] || "#1e9e56";
+dot.title = t.priority ? t.priority.charAt(0).toUpperCase() + t.priority.slice(1) + " priority" : "Low priority";
+left.appendChild(dot);
               if (isOwner) {
                 left.onclick = async function() {
   if (!t.done && t.recur) {
@@ -968,11 +1018,13 @@ edit.onclick = function() {
   if (newText === null) return;
   const newDate = prompt("Edit due date (YYYY-MM-DD):", t.date || "");
   const newNote = prompt("Edit note:", t.notes || "");
+  const newPriority = prompt("Edit priority (high/medium/low):", t.priority || "low");
   if (newText.trim()) {
     updateDoc(doc(db, "tasks", t.id), {
       text: newText.trim(),
       date: newDate || "",
-      notes: newNote || ""
+      notes: newNote || "",
+      priority: ["high","medium","low"].includes(newPriority) ? newPriority : "low"
     });
   }
 };
@@ -1054,6 +1106,7 @@ await addDoc(collection(db, "tasks"), {
   text,
   notes,
   recur,
+  priority: selectedPriority,
   done: false,
   date: dateInput.value,
   createdAt: Date.now()
@@ -1063,6 +1116,9 @@ await addDoc(collection(db, "tasks"), {
         dateInput.value = "";
         assignSelect.value = currentName;
        document.getElementById("recurSelect").value = "";
+       selectedPriority = "low";
+document.querySelectorAll(".priority-btn").forEach(b => b.classList.remove("selected"));
+document.querySelector(".priority-btn.low").classList.add("selected");
         selectedEmoji = "";
         document.querySelectorAll(".emoji-btn").forEach(b => b.classList.remove("selected"));
         input.focus();
