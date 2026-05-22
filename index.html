@@ -562,10 +562,10 @@ body.dark .theme-color.selected {
       </div>
       <div class="card">
        <div id="dashboard" style="display:none">
-        <div id="themePicker" style="display:none">
+      <div id="themePicker" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:white;border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:9999;min-width:280px;">
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:12px;">🎨 Choose Your Theme</h2>
-  <div class="theme-picker" id="themeColors"></div>
-  <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
+  <div class="theme-picker" id="themeColors" style="justify-content:center;"></div>
+  <button onclick="document.getElementById('themePicker').style.display='none'" style="width:100%;margin-top:12px;padding:8px;background:#f0f4ff;color:#2c3e7a;border:none;border-radius:8px;cursor:pointer;font-size:14px;">Close</button>
 </div>
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">📊 Family Progress</h2>
   <div id="chartContainer"></div>
