@@ -825,9 +825,12 @@ avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cove
       li.style.display = matches ? "flex" : "none";
       if (matches) visibleCount++;
     });
-    // Show/hide empty message
-    const emptyEl = section.querySelector(".empty-member");
-    if (emptyEl) emptyEl.style.display = visibleCount === 0 && q !== "" ? "block" : "";
+    // Hide entire section if no matching tasks
+    if (q === "") {
+      section.style.display = "block";
+    } else {
+      section.style.display = visibleCount > 0 ? "block" : "none";
+    }
   });
 };
           listenToTasks();
@@ -839,6 +842,8 @@ avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cove
           if (unsubscribe) unsubscribe();
         }
       });
+
+       
     
 
       // LOGIN
