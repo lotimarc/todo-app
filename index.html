@@ -567,10 +567,6 @@ body.dark .theme-color.selected {
   <div class="theme-picker" id="themeColors"></div>
   <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
 </div>
-  <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:12px;">🎨 Choose Your Theme</h2>
-  <div class="theme-picker" id="themeColors"></div>
-  <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
-</div>
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">📊 Family Progress</h2>
   <div id="chartContainer"></div>
   <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
@@ -777,27 +773,6 @@ function applyTheme(color) {
     el.classList.toggle("selected", el.dataset.color === color);
   });
 }
-
-function buildThemePicker() {
-  const container = document.getElementById("themeColors");
-  if (container.children.length > 0) return;
-  themes.forEach(t => {
-    const dot = document.createElement("div");
-    dot.className = "theme-color" + (t.color === currentTheme ? " selected" : "");
-    dot.style.background = t.color;
-    dot.dataset.color = t.color;
-    dot.title = t.name;
-    dot.onclick = () => applyTheme(t.color);
-    container.appendChild(dot);
-  });
-}
-
-window.toggleTheme = function() {
-  const picker = document.getElementById("themePicker");
-  const isHidden = picker.style.display === "none";
-  picker.style.display = isHidden ? "block" : "none";
-  if (isHidden) buildThemePicker();
-};
 
       // AUTH
       onAuthStateChanged(auth, user => {
@@ -1299,6 +1274,26 @@ document.querySelector(".priority-btn.low").classList.add("selected");
       document.getElementById("passwordInput").addEventListener("keypress", function(e) {
         if (e.key === "Enter") window.loginUser();
       });
+      function buildThemePicker() {
+  const container = document.getElementById("themeColors");
+  if (container.children.length > 0) return;
+  themes.forEach(t => {
+    const dot = document.createElement("div");
+    dot.className = "theme-color" + (t.color === currentTheme ? " selected" : "");
+    dot.style.background = t.color;
+    dot.dataset.color = t.color;
+    dot.title = t.name;
+    dot.onclick = () => applyTheme(t.color);
+    container.appendChild(dot);
+  });
+}
+
+window.toggleTheme = function() {
+  const picker = document.getElementById("themePicker");
+  const isHidden = picker.style.display === "none";
+  picker.style.display = isHidden ? "block" : "none";
+  if (isHidden) buildThemePicker();
+};
     </script>
   </body>
 </html>
