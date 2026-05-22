@@ -148,7 +148,7 @@ body:not(.dark) {
         gap: 10px;
       }
 
-      .task-text {font-size: 14px; color: var(--text);}
+      .task-text { font-size: 14px; color: var(--text); font-weight: 500; }
       .due-date { font-size: 12px; color: var(--subtext); margin-top: 2px; }
       .empty-member { font-size: 13px; color: var(--empty); padding: 6px 0; font-style:italic; }
       .leaderboard-row { background: var(--row-bar);}
@@ -258,6 +258,7 @@ body:not(.dark) {
       }
 
       li.done .task-text { text-decoration: line-through; color: #aaa; }
+      body.dark .task-text { color: #ffffff;}
       li.done .due-date { color: #ccc; }
 
       .task-left {
@@ -824,13 +825,10 @@ avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cove
       const matches = q === "" || text.includes(q);
       li.style.display = matches ? "flex" : "none";
       if (matches) visibleCount++;
-    });
-    // Hide entire section if no matching tasks
-    if (q === "") {
-      section.style.display = "block";
-    } else {
-      section.style.display = visibleCount > 0 ? "block" : "none";
-    }
+  });
+    // Show/hide empty message
+    const emptyEl = section.querySelector(".empty-member");
+    if (emptyEl) emptyEl.style.display = visibleCount === 0 && q !== "" ? "block" : "";
   });
 };
           listenToTasks();
@@ -842,8 +840,6 @@ avatar.style.cssText = "width:32px;height:32px;border-radius:50%;object-fit:cove
           if (unsubscribe) unsubscribe();
         }
       });
-
-       
     
 
       // LOGIN
