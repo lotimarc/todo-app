@@ -959,13 +959,32 @@ if (t.notes) {
               right.style.gap = "6px";
 
               if (isOwner) {
-                const del = document.createElement("button");
-                del.textContent = "✕";
-                del.className = "delete-btn";
-                del.onclick = async function() {
-                  await deleteDoc(doc(db, "tasks", t.id));
-                };
-                right.appendChild(del);
+                const edit = document.createElement("button");
+edit.textContent = "✏️";
+edit.className = "delete-btn";
+edit.style.fontSize = "14px";
+edit.onclick = function() {
+  const newText = prompt("Edit task:", t.text);
+  if (newText === null) return;
+  const newDate = prompt("Edit due date (YYYY-MM-DD):", t.date || "");
+  const newNote = prompt("Edit note:", t.notes || "");
+  if (newText.trim()) {
+    updateDoc(doc(db, "tasks", t.id), {
+      text: newText.trim(),
+      date: newDate || "",
+      notes: newNote || ""
+    });
+  }
+};
+right.appendChild(edit);
+
+const del = document.createElement("button");
+del.textContent = "✕";
+del.className = "delete-btn";
+del.onclick = async function() {
+  await deleteDoc(doc(db, "tasks", t.id));
+};
+right.appendChild(del);
               }
 
               li.appendChild(left);
