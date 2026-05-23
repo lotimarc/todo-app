@@ -743,37 +743,6 @@ const themes = [
 let currentTheme = localStorage.getItem("appTheme") || "#2c3e7a";
 applyTheme(currentTheme);
 
-function applyTheme(color) {
-  currentTheme = color;
-  localStorage.setItem("appTheme", color);
-  document.documentElement.style.setProperty("--theme", color);
-
-  // Apply to all themed elements
-  document.querySelectorAll("button:not(.emoji-btn):not(.priority-btn):not(.delete-btn):not(.pin-btn):not(.expand-btn):not(.dark-btn):not(.dashboard-btn):not(.theme-color):not(.logout-btn):not(.tab):not(.themeBtn)").forEach(btn => {
-    if (btn.id !== "darkBtn" && btn.id !== "themeBtn") {
-      btn.style.backgroundColor = color;
-    }
-  });
-
-  document.querySelectorAll(".tab.active").forEach(t => {
-    t.style.backgroundColor = color;
-    t.style.borderColor = color;
-  });
-
-  document.querySelectorAll(".tab").forEach(t => {
-    t.style.borderColor = color;
-  });
-
-  document.querySelectorAll("input:focus, select:focus, textarea:focus").forEach(el => {
-    el.style.borderColor = color;
-  });
-
-  // Update theme picker selection
-  document.querySelectorAll(".theme-color").forEach(el => {
-    el.classList.toggle("selected", el.dataset.color === color);
-  });
-}
-
       // AUTH
       onAuthStateChanged(auth, user => {
         if (user) {
@@ -1294,6 +1263,36 @@ window.toggleTheme = function() {
   picker.style.display = isHidden ? "block" : "none";
   if (isHidden) buildThemePicker();
 };
+function applyTheme(color) {
+  currentTheme = color;
+  localStorage.setItem("appTheme", color);
+  document.documentElement.style.setProperty("--theme", color);
+
+  // Apply to all themed elements
+  document.querySelectorAll("button:not(.emoji-btn):not(.priority-btn):not(.delete-btn):not(.pin-btn):not(.expand-btn):not(.dark-btn):not(.dashboard-btn):not(.theme-color):not(.logout-btn):not(.tab):not(.themeBtn)").forEach(btn => {
+    if (btn.id !== "darkBtn" && btn.id !== "themeBtn") {
+      btn.style.backgroundColor = color;
+    }
+  });
+
+  document.querySelectorAll(".tab.active").forEach(t => {
+    t.style.backgroundColor = color;
+    t.style.borderColor = color;
+  });
+
+  document.querySelectorAll(".tab").forEach(t => {
+    t.style.borderColor = color;
+  });
+
+  document.querySelectorAll("input:focus, select:focus, textarea:focus").forEach(el => {
+    el.style.borderColor = color;
+  });
+
+  // Update theme picker selection
+  document.querySelectorAll(".theme-color").forEach(el => {
+    el.classList.toggle("selected", el.dataset.color === color);
+  });
+}
     </script>
   </body>
 </html>
