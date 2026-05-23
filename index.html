@@ -532,6 +532,10 @@ body:not(.dark) {
 body.dark .theme-color.selected {
   border-color: #fff;
 }
+body.dark #themePicker {
+  background: #1a1a2e;
+  color: white;
+}
     </style>
   </head>
   <body>
@@ -562,7 +566,7 @@ body.dark .theme-color.selected {
       </div>
       <div class="card">
        <div id="dashboard" style="display:none">
-      <div id="themePicker" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:white;border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:9999;min-width:280px;">
+      <div id="themePicker" style="display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:white;border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.25);z-index:99999;min-width:280px;">
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:12px;">🎨 Choose Your Theme</h2>
   <div class="theme-picker" id="themeColors" style="justify-content:center;"></div>
   <button onclick="document.getElementById('themePicker').style.display='none'" style="width:100%;margin-top:12px;padding:8px;background:#f0f4ff;color:#2c3e7a;border:none;border-radius:8px;cursor:pointer;font-size:14px;">Close</button>
