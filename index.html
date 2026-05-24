@@ -566,12 +566,7 @@ body.dark #themePicker {
       </div>
       <div class="card">
        <div id="dashboard" style="display:none">
-      <div id="themePicker" style="display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:white;border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.25);z-index:99999;min-width:280px;">
-  <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:12px;">🎨 Choose Your Theme</h2>
-  <div class="theme-picker" id="themeColors" style="justify-content:center;"></div>
-  <button onclick="document.getElementById('themePicker').style.display='none'" style="width:100%;margin-top:12px;padding:8px;background:#f0f4ff;color:#2c3e7a;border:none;border-radius:8px;cursor:pointer;font-size:14px;">Close</button>
-</div>
-  <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">📊 Family Progress</h2>
+        <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">📊 Family Progress</h2>
   <div id="chartContainer"></div>
   <hr style="border:none;border-top:1.5px solid #e0e0e0;margin:16px 0;">
   <h2 style="text-align:center;color:#2c3e7a;font-size:16px;margin-bottom:16px;">🏆 Leaderboard</h2>
@@ -587,6 +582,11 @@ body.dark #themePicker {
 
         <!-- ADD TASK -->
         <div class="input-row">
+          <div id="themePicker" style="display:none;margin-bottom:16px;background:#f0f4ff;border-radius:10px;padding:14px 16px;">
+  <div style="font-size:14px;font-weight:bold;color:#2c3e7a;margin-bottom:10px;">🎨 Choose Your Theme</div>
+  <div id="themeColors" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+  <button onclick="document.getElementById('themePicker').style.display='none'" style="margin-top:10px;padding:6px 14px;background:#2c3e7a;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;">Close</button>
+</div>
           <input type="text" id="taskInput" placeholder="Add a new task...">
           <button onclick="addTask()">Add</button>
         </div>
@@ -1262,9 +1262,12 @@ document.querySelector(".priority-btn.low").classList.add("selected");
 }
 
 window.toggleTheme = function() {
+  console.log("toggleTheme called");
   const picker = document.getElementById("themePicker");
+  console.log("picker:", picker);
   const isHidden = picker.style.display === "none";
   picker.style.display = isHidden ? "block" : "none";
+  console.log("display set to:", picker.style.display);
   if (isHidden) window.buildThemePicker();
 };
 function applyTheme(color) {
