@@ -1273,31 +1273,32 @@ window.toggleTheme = function() {
 function applyTheme(color) {
   currentTheme = color;
   localStorage.setItem("appTheme", color);
-  document.documentElement.style.setProperty("--theme", color);
 
-  // Apply to all themed elements
-  document.querySelectorAll("button:not(.emoji-btn):not(.priority-btn):not(.delete-btn):not(.pin-btn):not(.expand-btn):not(.dark-btn):not(.dashboard-btn):not(.theme-color):not(.logout-btn):not(.tab):not(.themeBtn)").forEach(btn => {
-    if (btn.id !== "darkBtn" && btn.id !== "themeBtn") {
+  // Update Add button
+  document.querySelectorAll("button:not(.emoji-btn):not(.priority-btn):not(.delete-btn):not(.pin-btn):not(.expand-btn):not(.dark-btn):not(.dashboard-btn):not(.logout-btn):not(.tab):not([style*='background: none'])").forEach(btn => {
+    if (!btn.classList.contains("theme-color") &&
+        !btn.classList.contains("logout-btn") &&
+        btn.id !== "darkBtn" &&
+        btn.textContent !== "Close") {
       btn.style.backgroundColor = color;
+      btn.style.borderColor = color;
     }
   });
 
-  document.querySelectorAll(".tab.active").forEach(t => {
-    t.style.backgroundColor = color;
-    t.style.borderColor = color;
-  });
-
-  document.querySelectorAll(".tab").forEach(t => {
-    t.style.borderColor = color;
-  });
-
-  document.querySelectorAll("input:focus, select:focus, textarea:focus").forEach(el => {
-    el.style.borderColor = color;
+  // Update member headers border
+  document.querySelectorAll(".leaderboard-points").forEach(el => {
+    el.style.color = color;
+    el.style.background = color + "22";
   });
 
   // Update theme picker selection
   document.querySelectorAll(".theme-color").forEach(el => {
-    el.classList.toggle("selected", el.dataset.color === color);
+    el.style.border = el.dataset.color === color ? "3px solid #222" : "3px solid transparent";
+  });
+
+  // Update pinned task border
+  document.querySelectorAll(".pinned-task").forEach(el => {
+    el.style.borderLeftColor = color;
   });
 }
     </script>
